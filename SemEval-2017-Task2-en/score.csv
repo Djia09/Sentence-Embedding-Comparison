@@ -1,0 +1,11 @@
+model,vocabulary size,dimension,Pearson score,Spearman score,Official score
+GloVe 6B 50d,400000,50,55.985,56.437,56.210
+GloVe 6B 100d,400000,100,58.255,58.421,58.338
+GloVe 6B 300d,400000,300,63.528,64.769,64.143
+Word2Vec GoogleNews,3000000,300,61.645,62.762,62.199
+Numberbatch 17.06,417194,300,74.987,77.155,76.055
+Mini Numberbatch 17.06,150875,300,71.754,74.188,72.951
+Elmo small,,256,53.037,53.246,53.141
+Elmo medium,,512,58.743,58.570,58.656
+Elmo original,,1024,60.676,61.317,60.995
+
