@@ -1,9 +1,9 @@
 import pandas as pd
 import time
 
-def loadMiniNumberbatch():
-    print("Begin...")
-    path = "./../17.06/mini.h5"
+def loadMiniNumberbatch(path):
+    # path = "./../17.06/mini.h5"
+    print("Begin load miniNumberbatch at ", path)
 
     start = time.time()
     df = pd.read_hdf(path)
