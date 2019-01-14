@@ -12,16 +12,18 @@ from allennlp.commands.elmo import ElmoEmbedder
 
 embed = "elmo"
 which_elmo = "original"
+path_to_w2v = './../../../Perso/Pretrained-Embedding/Word2Vec/GoogleNews-vectors-negative300.bin'
+path_to_glove = "./../../../Perso/Pretrained-Embedding/GloVe/"
 print("Begin loading model...")
 if embed == "glove":
     start = time.time()
     dim = 50
-    model = loadAndCreateModel(dim)
+    model = loadAndCreateModel(dim, path_to_glove)
     vocab_size = len(model.keys())
     d = len(model['hello'])
 
 elif embed == "w2v":
-    model = KeyedVectors.load_word2vec_format('./../../../Perso/Pretrained-Embedding/Word2Vec/GoogleNews-vectors-negative300.bin', binary=True)
+    model = KeyedVectors.load_word2vec_format(path_to_w2v, binary=True)
     vocab_size = len(model.vocab)
     d = len(model['hello'])
 
