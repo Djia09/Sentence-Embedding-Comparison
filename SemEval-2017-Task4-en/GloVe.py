@@ -3,8 +3,8 @@ import time
 import numpy as np
 import json
 
-def loadAndCreateModel(dim):
-    glove_path = "./../../../Perso/Pretrained-Embedding/GloVe/"
+def loadAndCreateModel(dim, glove_path):
+    # glove_path = "./../../../../Perso/Pretrained-Embedding/GloVe/"
     path = os.path.join(glove_path, "glove.6B."+str(dim)+"d.txt")
     start = time.time()
     with open(path, 'r', encoding='utf-8') as f:

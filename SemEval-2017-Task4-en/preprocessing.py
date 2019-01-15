@@ -59,7 +59,7 @@ def preprocess(tweet_values):
                 # print(repeat_charac)
                 while re.sub(repeat_charac*3, repeat_charac*2, token) != token:
                     token = re.sub(repeat_charac*3, repeat_charac*2, token)
-                token = re.sub("\W+", " ", token).strip()
+                # token = re.sub("\W+", " ", token).strip()
             new_tweet.append(token)
         new_tweet = " ".join(new_tweet).lower()
         tweets.append(new_tweet)

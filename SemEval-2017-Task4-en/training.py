@@ -52,14 +52,11 @@ def train(path, model, grid=False):
     y_train = labelToInt(labels)
     print("There are %d tweets and %d labels." % (len(tweets), len(y_train)))
 
-    # print("TEST: \n", tweets[69], vectorize_sentence(tweets[69], model))
     print("Begin embedding...")
-    with open('training.txt', 'w', encoding='utf-8') as f:
-        for x in tweets:
-            f.write(x + '\n')
+    # with open('training.txt', 'w', encoding='utf-8') as f:
+    #     for x in tweets:
+    #         f.write(x + '\n')
     start = time.time()
-    # print("DEBUG: ", model)
-    # print("DEBUG: ", isinstance(model, ElmoEmbedder))
     if isinstance(model, InferSent):
         try:
             X = np.load('infersent_training_embedding.npy')

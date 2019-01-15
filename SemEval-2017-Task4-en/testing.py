@@ -1,7 +1,4 @@
 from training import train, vectorize_sentence
-from numberbatch import loadAndCreateNumberBatchModel
-from GloVe import loadAndCreateModel
-from miniNumberbatch import loadMiniNumberbatch
 from preprocessing import getTweetsAndLabels
 import time
 from sklearn.svm import SVC
@@ -13,11 +10,25 @@ import torch
 import math
 import nltk
 from nltk.tokenize import word_tokenize
-from allennlp.commands.elmo import ElmoEmbedder
+import argparse
+import sys
 
 # Choice of the embedding model
-embed = "infersent"
-dim = 300
+parser = argparse.ArgumentParser(description="Comparison of embedding methods for Twitter Sentiment-Analysis.")
+parser.add_argument("--embed", help="Available embedding: glove, miniNumberbatch, elmo, infersent")
+parser.add_argument("-d", "--dimension", help="Choose a dimension for GloVe vectors. Default is the smallest: d=50.", type=int)
+parser.add_argument("-p", "--path", help="Path to your embedding model")
+parser.add_argument("--which_elmo", help="Choose ELMo model weights. Default is the smallest: which_elmo=small.")
+args = parser.parse_args()
+embed = args.embed
+if not embed:
+    print('No embed argument chosen, argument "embed": %s. Exit program.' % (embed))
+    sys.exit()
+elif embed not in ['glove', 'w2v', 'numberBatch', 'miniNumberbatch', 'elmo', 'infersent']:
+    print("Wrong chosen argument 'embed'. Choose between: glove, w2v, miniNumberbatch, elmo")
+    sys.exit()
+else:
+    print('Chosen embed argument: ', embed)
 
 # Choice of the training and testing task.
 year = str(2016)
@@ -25,7 +36,6 @@ subtask = 'A'
 training_path = "2017_English_final/GOLD/Subtask_"+subtask+"/twitter-"+year+"train-A.txt"
 path_dev = "2017_English_final/GOLD/Subtask_"+subtask+"/twitter-"+year+"dev-A.txt"
 path_test = "2017_English_final/GOLD/Subtask_"+subtask+"/twitter-"+year+"test-A.txt"
-output_path = "./Output/"+year+"_subtask"+subtask+"_test_english_"+embed+str(dim)+'.txt'
 
 def labelToInt(labels):
     values = []
@@ -59,30 +69,72 @@ def intToLabel(values):
 print("Begin loading model...")
 start = time.time()
 if embed == "glove":
-    model = loadAndCreateModel(dim)
+    from GloVe import loadAndCreateModel
+    if args.path:
+        path_to_glove = args.path# "./../../../../Perso/Pretrained-Embedding/GloVe/"
+        print('GloVe path: ' + path_to_glove + '. Warning: in GloVe case, it must be the FOLDER path.')
+    else:
+        print('You need to give GloVe FOLDER path')
+        sys.exit()
+    if args.dimension:
+        dim = args.dimension
+        if dim not in [50, 100, 200, 300]:
+            print("Available GloVe dimension: 50, 100, 200 or 300. You chose %d !" % (dim))
+            sys.exit()
+    else:
+        dim = 50
+    print('Chosen dimension for GloVe: ', dim)
+    start = time.time()
+    model = loadAndCreateModel(dim, path_to_glove)
     vocab_size = len(model.keys())
     d = len(model['hello'])
 elif embed == "numberBatch":
+    from numberbatch import loadAndCreateNumberBatchModel
+
     start = time.time()
     dim = 300
     model = loadAndCreateNumberBatchModel()
     vocab_size = len(model.keys())
     d = len(model['hello'])
 elif embed == "miniNumberbatch":
+    from miniNumberbatch import loadMiniNumberbatch
+    if args.path:
+        mNb_path = args.path #"./../17.06/mini.h5"
+        print('Conceptnet model path: ' + path_to_w2v + '. Warning: in miniNumberbatch case, it must be the FILE.h5 path.')
+    else:
+        print('You need to give ConceptNet miniNumberBatch FILE.h5 path')
+        sys.exit()
     start = time.time()
-    dim = 300
-    model = loadMiniNumberbatch()
+    model = loadMiniNumberbatch(mNb_path)
     vocab_size = len(model.keys())
     d = len(model['hello'])
-elif embed == 'elmo':
-    ### ELMo embedding on training data
-    weight_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_weights.hdf5"
-    options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_options.json"
+elif embed == "elmo":
+    from allennlp.commands.elmo import ElmoEmbedder
 
+    ### ELMo embedding on training data
+    if args.which_elmo:
+        which_elmo = args.which_elmo# "small"
+        print("Chosen ELMo option: ", which_elmo)
+    else:
+        which_elmo = "small"
+        print('Default ELMo chosen: small.')
+    if which_elmo == "small":
+        weight_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_weights.hdf5"
+        options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x1024_128_2048cnn_1xhighway/elmo_2x1024_128_2048cnn_1xhighway_options.json"
+    elif which_elmo == "medium":
+        weight_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x2048_256_2048cnn_1xhighway/elmo_2x2048_256_2048cnn_1xhighway_weights.hdf5"
+        options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x2048_256_2048cnn_1xhighway/elmo_2x2048_256_2048cnn_1xhighway_options.json"
+    elif which_elmo == "original":
+        weight_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5"
+        options_file = "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json"
+    else:
+        print('This option is not available...')
+        sys.exit()
     start = time.time()
     print("Downloading elmo model...")
     model = ElmoEmbedder(options_file, weight_file)
-    d = model.embed_sentence(['Hello']).shape[2]
+    dim = model.embed_sentence(['Hello']).shape[2]
+    d = dim
     vocab_size = 0
     print("Downloaded in %fs" % (time.time()-start))
 elif embed == 'infersent':
@@ -93,18 +145,19 @@ elif embed == 'infersent':
     params_model = {'bsize': 64, 'word_emb_dim': 300, 'enc_lstm_dim': 2048, 'pool_type': 'max', 'dpout_model': 0.0, 'version': model_version}
     model = InferSent(params_model)
     model.load_state_dict(torch.load(MODEL_PATH))
-    
+
     # If infersent1 -> use GloVe embeddings. If infersent2 -> use InferSent embeddings.
     W2V_PATH = './../../../../Perso/Pretrained-Embedding/GloVe/glove.840B.300d.txt' if model_version == 1 else '../dataset/fastText/crawl-300d-2M.vec'
     model.set_w2v_path(W2V_PATH)
     # Load embeddings of K most frequent words
     model.build_vocab_k_words(K=100000)
     vocab_size = 100000
-    d = 4096
+    d = model.encode(['hello guys']).shape[1]
 
 print('Model '+embed.upper()+' loaded in %fs.' % (time.time()-start))
 print("Vocabulary size: %d" % vocab_size)
 print("Vector dimension: %d" % d)
+output_path = "./Output/"+year+"_subtask"+subtask+"_test_english_"+embed+str(d)+'withPunctuation.txt'
 
 # Process and training 
 grid = False # If grid=True, will perform scikit-learn GridSearch for SVM.

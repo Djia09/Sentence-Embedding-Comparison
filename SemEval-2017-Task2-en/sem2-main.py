@@ -109,6 +109,7 @@ def parsing_initialisation():
     print('Model '+embed.upper()+' loaded in %fs.' % (time.time()-start))
     print("Vocabulary size: %d" % vocab_size)
     print("Vector dimension: %d" % d)
+    return model, embed
 
 def cosine_similarity_single(a, b):
     assert len(a)==len(b)
@@ -165,7 +166,7 @@ def writeOutput(path, similarities):
             f.write(str(x) + '\n')
 
 def main():
-    parsing_initialisation()
+    model, embed = parsing_initialisation()
     trial_data = getPairWords("trial")
     trial_similarities = pairSimilarity(trial_data, model)
     print("Similarity: ", trial_similarities)

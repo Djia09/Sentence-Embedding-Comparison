@@ -4,4 +4,4 @@ year,subtask,model,dimension,AvgR,AvgF1,Acc,OVERALL_SCORE
 2016,A,glove,100,0.478,0.451,0.502,0.478
 2016,A,miniNumberbatch,300,0.492,0.467,0.476,0.492
 2016,A,elmo,256,0.491,0.469,0.505,0.491
-2016,A,infersent,0.543,0.524,0.531,0.543
+2016,A,infersent,,0.543,0.524,0.531,0.543
