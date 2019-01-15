@@ -1,2 +1,3 @@
 # Embedding-Comparison
-We compare several embedding methods by evaluating them with SemEval.
+In this part, we evaluate evaluate word-embedding methods with SemEval 2017 Task 2.
+

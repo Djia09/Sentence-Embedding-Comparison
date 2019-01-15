@@ -4,6 +4,7 @@ import numpy as np
 from nltk.tokenize import word_tokenize
 from sklearn.svm import SVC
 from allennlp.commands.elmo import ElmoEmbedder
+from models import InferSent
 
 path = "2017_English_final/GOLD/Subtask_A/twitter-2015train-A.txt"
 
@@ -53,13 +54,26 @@ def train(path, model, grid=False):
 
     # print("TEST: \n", tweets[69], vectorize_sentence(tweets[69], model))
     print("Begin embedding...")
+    with open('training.txt', 'w', encoding='utf-8') as f:
+        for x in tweets:
+            f.write(x + '\n')
     start = time.time()
-    print("DEBUG: ", model)
-    print("DEBUG: ", isinstance(model, ElmoEmbedder))
-    if not isinstance(model, ElmoEmbedder):
-        X = np.array([vectorize_sentence(x, model) for x in tweets])
-    else:
+    # print("DEBUG: ", model)
+    # print("DEBUG: ", isinstance(model, ElmoEmbedder))
+    if isinstance(model, InferSent):
+        try:
+            X = np.load('infersent_training_embedding.npy')
+        except FileNotFoundError:             
+            X = np.zeros((len(tweets), 4096), dtype=np.float32)
+            for i in range(len(tweets)):
+                start2 = time.time()
+                X[i,:] = model.encode([tweets[i]], tokenize=True)[0]
+                print('%d/%d in %fs' % (i, len(tweets), time.time()-start2))
+            np.save('infersent_training_embedding.npy', X)
+    elif isinstance(model, ElmoEmbedder):
         X = np.array([model.embed_sentence(x.split()).mean(axis=0).mean(axis=0) for x in tweets])
+    else:
+        X = np.array([vectorize_sentence(x, model) for x in tweets])
     print("Vectorized in %fs" % (time.time()-start))
     print("Shape of X: ", X.shape)
 
