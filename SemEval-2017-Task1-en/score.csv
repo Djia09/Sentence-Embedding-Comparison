@@ -1,0 +1,8 @@
+model,validation_score,testing_score
+glove50,0.42724,0.33132
+glove100,0.43959,0.33742
+glove200,0.48556,0.38241
+miniNumberbatch,0.60228,0.46861
+ELMo,0.53954,0.35913
+InferSent100KGlove,0.75188,0.68163
+InferSent100KFastText,0.77589,0.69832
