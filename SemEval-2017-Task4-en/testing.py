@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import os
 import argparse
 import sys
 import time
@@ -16,12 +17,12 @@ from preprocessing import getTweetsAndLabels
 def loadModel(args):
     # Load model according to the choice in "embed".
     print("Begin loading model...")
-    embed = args.embed
+    embed = args.embedding
     start = time.time()
     if embed == "glove":
         from GloVe import loadAndCreateModel
         if args.path:
-            path_to_glove = args.path# "./../../../../Perso/Pretrained-Embedding/GloVe/"
+            path_to_glove = args.path
             print('GloVe path: ' + path_to_glove + '.\nWarning: in GloVe case, it must be the FOLDER path.')
         else:
             print('You need to give GloVe FOLDER path')
@@ -48,8 +49,8 @@ def loadModel(args):
     elif embed == "miniNumberbatch":
         from miniNumberbatch import loadMiniNumberbatch
         if args.path:
-            mNb_path = args.path #"./../17.06/mini.h5"
-            print('Conceptnet model path: ' + path_to_w2v + '. Warning: in miniNumberbatch case, it must be the FILE.h5 path.')
+            mNb_path = args.path
+            print('Conceptnet model path: ' + mNb_path + '. Warning: in miniNumberbatch case, it must be the FILE.h5 path.')
         else:
             print('You need to give ConceptNet miniNumberBatch FILE.h5 path')
             sys.exit()
@@ -89,18 +90,33 @@ def loadModel(args):
     elif embed == 'infersent':
         from models import InferSent
         nltk.download('punkt')
-        model_version = 1
-        MODEL_PATH = "./../../../../Perso/InferSent/encoder/infersent%s.pkl" % model_version
+        if args.path:
+            inferSent_path = args.path
+            print('InferSent model path: ' + inferSent_path + '. Warning: in InferSent case, it must be InferSent FOLDER path.')
+        else:
+            print('You need to give InferSent FOLDER path')
+            sys.exit()
+        if args.version == 1 or args.version == 2:
+            model_version = args.version
+        else:
+            print('You need to choose InferSent version between 1 (Word2Vec input) or 2 (FastText input).')
+            sys.exit()
+        if args.embedding_path:
+            W2V_PATH = args.embedding_path
+            print('InferSent pretrained embedding path: ' + W2V_PATH + '. Warning: in this case, it must be "model.txt" or "model.vec" path.')
+        else:
+            print('You need to give InferSent "model.txt" or "model.vec" path path')
+            sys.exit()
+        MODEL_PATH = os.path.join(inferSent_path, "./encoder/infersent%s.pkl" % model_version)
         params_model = {'bsize': 64, 'word_emb_dim': 300, 'enc_lstm_dim': 2048, 'pool_type': 'max', 'dpout_model': 0.0, 'version': model_version}
         model = InferSent(params_model)
         model.load_state_dict(torch.load(MODEL_PATH))
 
         # If infersent1 -> use GloVe embeddings. If infersent2 -> use InferSent embeddings.
-        W2V_PATH = './../../../../Perso/Pretrained-Embedding/GloVe/glove.840B.300d.txt' if model_version == 1 else '../dataset/fastText/crawl-300d-2M.vec'
         model.set_w2v_path(W2V_PATH)
         # Load embeddings of K most frequent words
-        model.build_vocab_k_words(K=100000)
         vocab_size = 100000
+        model.build_vocab_k_words(K=vocab_size)
         d = model.encode(['hello guys']).shape[1]
 
     print('Model '+embed.upper()+' loaded in %fs.' % (time.time()-start))
@@ -152,7 +168,11 @@ def validation(path_dev, embed, model, clf):
         try:
             X_dev = np.load('infersent_validation_embedding.npy')
         except FileNotFoundError: 
-            X_dev = model.encode(tweets_dev, tokenize=True)
+            X_dev = np.zeros((len(tweets_dev), 4096), dtype=np.float32)
+            for i in range(len(tweets_dev)):
+                start2 = time.time()
+                X_dev[i,:] = model.encode([tweets_dev[i]], tokenize=True)[0]
+                print('%d/%d in %fs' % (i, len(tweets_dev), time.time()-start2))
             np.save('infersent_validation_embedding.npy', X_dev)
     else:
         X_dev = np.array([vectorize_sentence(x, model) for x in tweets_dev])
@@ -199,7 +219,7 @@ def testing(path_test, embed, model, clf):
     print('Testing recall score: ', recall_score(y_test, y_pred_test, average='weighted'))
     print('Testing f1 score: ', f1_score(y_test, y_pred_test, average='weighted'))
     print("Prediction done in %fs." % (time.time()-start))
-    return y_pred_test
+    return y_pred_test, ID
 
 def main():
     # Choice of the training and testing task.
@@ -211,12 +231,14 @@ def main():
 
     # Choice of the embedding model
     parser = argparse.ArgumentParser(description="Comparison of embedding methods for Twitter Sentiment-Analysis.")
-    parser.add_argument("--embed", help="Available embedding: glove, miniNumberbatch, elmo, infersent")
+    parser.add_argument("-embed", "--embedding", help="Available embedding: glove, miniNumberbatch, elmo, infersent")
     parser.add_argument("-d", "--dimension", help="Choose a dimension for GloVe vectors. Default is the smallest: d=50.", type=int)
     parser.add_argument("-p", "--path", help="Path to your embedding model")
     parser.add_argument("--which_elmo", help="Choose ELMo model weights. Default is the smallest: which_elmo=small.")
+    parser.add_argument("-v", "--version", help="Choose InferSent version: 1 or 2.", type=int)
+    parser.add_argument("-ep", "--embedding_path", help="For InferSent case, path to your embedding model.")
     args = parser.parse_args()
-    embed = args.embed
+    embed = args.embedding
     if not embed:
         print('No embed argument chosen, argument "embed": %s. Exit program.' % (embed))
         sys.exit()
@@ -228,7 +250,7 @@ def main():
 
     # Loading the embedding model
     model, d = loadModel(args)
-    output_path = "./Output/"+year+"_subtask"+subtask+"_test_english_"+embed+str(d)+".txt"#'withPunctuation.txt'
+    output_path = "./Output/"+year+"_subtask"+subtask+"_test_english_"+embed+str(d)+"fasttext.txt"#'withPunctuation.txt'
 
     # Process and training 
     grid = False # If grid=True, will perform scikit-learn GridSearch for SVM.
@@ -238,7 +260,7 @@ def main():
     validation(path_dev, embed, model, clf)
 
     # Process and testing
-    y_pred_test = testing(path_test, embed, model, clf)
+    y_pred_test, ID = testing(path_test, embed, model, clf)
 
     # Converting and saving the result
     labels_pred = intToLabel(y_pred_test)

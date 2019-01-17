@@ -6,8 +6,6 @@ from sklearn.svm import SVC
 from allennlp.commands.elmo import ElmoEmbedder
 from models import InferSent
 
-path = "2017_English_final/GOLD/Subtask_A/twitter-2015train-A.txt"
-
 def svc_param_selection(X, y, nfolds):
     Cs = [0.001, 0.01, 0.1, 1, 10]
     gammas = [0.0001, 0.001, 0.01, 0.1, 1]
@@ -53,9 +51,6 @@ def train(path, model, grid=False):
     print("There are %d tweets and %d labels." % (len(tweets), len(y_train)))
 
     print("Begin embedding...")
-    # with open('training.txt', 'w', encoding='utf-8') as f:
-    #     for x in tweets:
-    #         f.write(x + '\n')
     start = time.time()
     if isinstance(model, InferSent):
         try:
