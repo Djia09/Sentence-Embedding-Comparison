@@ -25,7 +25,7 @@ def loadModel(args):
             path_to_glove = args.path
             print('GloVe path: ' + path_to_glove + '.\nWarning: in GloVe case, it must be the FOLDER path.')
         else:
-            print('You need to give GloVe FOLDER path')
+            print('You need to give GloVe FILE path')
             sys.exit()
         if args.dimension:
             dim = args.dimension
@@ -36,7 +36,7 @@ def loadModel(args):
             dim = 50
         print('Chosen dimension for GloVe: ', dim)
         start = time.time()
-        model = loadAndCreateModel(dim, path_to_glove)
+        model = loadAndCreateModel(path_to_glove, dim)
         vocab_size = len(model.keys())
         d = len(model['hello'])
     elif embed == "numberBatch":
@@ -118,6 +118,18 @@ def loadModel(args):
         vocab_size = 100000
         model.build_vocab_k_words(K=vocab_size)
         d = model.encode(['hello guys']).shape[1]
+    if embed == "new":
+        from GloVe import loadAndCreateModel
+        if args.path:
+            new_path = args.path
+            print('New model path: ' + new_path + '. WARNING: the model must have the same format as GloVe files !')
+        else:
+            print('You need to give the model FILE path')
+            sys.exit()
+        start = time.time()
+        model = loadAndCreateModel(new_path)
+        vocab_size = len(model.keys())
+        d = len(model['hello'])
 
     print('Model '+embed.upper()+' loaded in %fs.' % (time.time()-start))
     print("Vocabulary size: %d" % vocab_size)
@@ -242,7 +254,7 @@ def main():
     if not embed:
         print('No embed argument chosen, argument "embed": %s. Exit program.' % (embed))
         sys.exit()
-    elif embed not in ['glove', 'w2v', 'numberBatch', 'miniNumberbatch', 'elmo', 'infersent']:
+    elif embed not in ['glove', 'w2v', 'numberBatch', 'miniNumberbatch', 'elmo', 'infersent', 'new']:
         print("Wrong chosen argument 'embed'. Choose between: glove, w2v, miniNumberbatch, elmo")
         sys.exit()
     else:

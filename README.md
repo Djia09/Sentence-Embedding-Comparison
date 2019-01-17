@@ -3,3 +3,9 @@ Since the rise of Word Embedding and Mikolov's Word2Vec model developed in this 
 
 In this repo, we compare different state-of-the-art sentence embedding methods and compare them in several tasks given in SemEval-2017.
 
+# SemEval
+We evaluate our models with 3 tasks:
+* Task 2 focuses on Word level (Word pairs comparison).
+* Task 1 focuses on Sentence level (Sentence pairs comparison).
+* Task 4 focuses on Sentence level, but on a deeper one (Sentiment Analysis).
+

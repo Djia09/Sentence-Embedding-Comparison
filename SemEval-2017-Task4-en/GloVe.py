@@ -3,13 +3,14 @@ import time
 import numpy as np
 import json
 
-def loadAndCreateModel(dim, glove_path):
+def loadAndCreateModel(path, dim=None):
     # glove_path = "./../../../../Perso/Pretrained-Embedding/GloVe/"
-    path = os.path.join(glove_path, "glove.6B."+str(dim)+"d.txt")
+    if dim != None:
+        path = os.path.join(path, "glove.6B."+str(dim)+"d.txt")
     start = time.time()
     with open(path, 'r', encoding='utf-8') as f:
         data = f.read()
-    print("Loaded GloVe at %s in %fs" % (os.path.basename(path), time.time()-start))
+    print("Loaded model at %s in %fs" % (os.path.basename(path), time.time()-start))
     
     lines = data.split('\n')
     print("There are %d lines." % len(lines))
@@ -23,7 +24,7 @@ def loadAndCreateModel(dim, glove_path):
         except IndexError as e:
             print("Index Error for: ", tokens)
             print(e)
-    print("Model GloVe "+os.path.splitext(os.path.basename(path))[0]+" created in %fs" % (time.time()-start))
+    print("Model "+os.path.splitext(os.path.basename(path))[0]+" created in %fs" % (time.time()-start))
     # save_path = os.path.join(glove_path, "glove.6B."+str(dim)+"d.json")
 #    with open(save_path, 'w', encoding='utf-8') as f:
 #        json.dump(model, f)

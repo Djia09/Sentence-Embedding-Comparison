@@ -10,12 +10,12 @@ import sys
 
 def parsing_initialisation():
     parser = argparse.ArgumentParser(description="Choose an embedding to compare.")
-    parser.add_argument("--embed", help="Available embedding: glove, w2v, miniNumberbatch, elmo")
+    parser.add_argument("-embed", "--embedding", help="Available embedding: glove, w2v, miniNumberbatch, elmo")
     parser.add_argument("-d", "--dimension", help="Choose a dimension for GloVe vectors. Default is the smallest: d=50.", type=int)
     parser.add_argument("-p", "--path", help="Path to your embedding model")
     parser.add_argument("--which_elmo", help="Choose ELMo model weights. Default is the smallest: which_elmo=small.")
     args = parser.parse_args()
-    embed = args.embed
+    embed = args.embedding
     if not embed:
         print('No embed argument chosen, argument "embed": %s. Exit program.' % (embed))
         sys.exit()
@@ -105,7 +105,6 @@ def parsing_initialisation():
 
     else:
         print("This embedding method is not available.", embed)
-    # d = len(model['hello'])
     print('Model '+embed.upper()+' loaded in %fs.' % (time.time()-start))
     print("Vocabulary size: %d" % vocab_size)
     print("Vector dimension: %d" % d)
@@ -134,8 +133,6 @@ def pairSimilarity(trial_data, model):
             for single_word in word.split():
                 try:
                     print("Word: ", single_word)
-                    # print(type(vec))
-                    # print(type(model[single_word.lower()]))
                     if embed != 'elmo':
                         vec = vec + model[single_word.lower()]
                     else:
