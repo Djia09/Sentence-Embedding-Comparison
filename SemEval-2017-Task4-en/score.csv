@@ -1,7 +1,4 @@
 year,subtask,model,dimension,vocabulary size,AvgR,AvgF1,Acc,OVERALL_SCORE
-2016,A,glove50,50,400K,0.421,0.344,0.469,0.421
-2016,A,glove50 remove,50,400K,0.420,0.345,0.468,0.420
-2016,A,glove100,100,400K,0.478,0.451,0.502,0.478
 2016,A,glove200,200,400K,0.493,0.471,0.514,0.493
 2016,A,miniNumberbatch,300,,0.492,0.467,0.476,0.492
 2016,A,elmo,256,,0.491,0.469,0.505,0.491
