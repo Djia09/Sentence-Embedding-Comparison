@@ -11,20 +11,6 @@ We evaluate our models with 3 tasks from [SemEval 2017](http://alt.qcri.org/seme
 
 N.B: the training for Task 4 was only done with SemEval 2016 tweets. 
 
-# Results
-* We show in Task 2 that retrofitting does improve word embedding. Indeed, the model [ConceptNet NumberBatch](https://github.com/commonsense/conceptnet-numberbatch), which uses retrofitting to "inject" ConceptNet "knowledge" in pre-trained embedding vectors, has the highest score among all the models we have tested. 
-
-The best Pearson score (0.80) was obtained by Luminoso_run2 using ConceptNet NumberBatch.
-![alt text](SemEval-2017-Task2-en/Figures/evaluation_comparison.png)
-
-* We show in Task 1 and Task 4 that a sentence representation is more accurate than an average of word representations. Indeed, [InferSent](https://github.com/facebookresearch/InferSent) model has obtained higher accuracy than the other word embedding models.
-
-The best Testing Accuracy Score (0.81) was obtained by [Yang et al. 2018](https://arxiv.org/pdf/1804.07754.pdf).
-![alt text](SemEval-2017-Task1-en/Figure/testing.png)
-
-The best F1 score (0.633) for Task 4 was obtained by [SwissCheese](http://www.aclweb.org/anthology/S16-1173) model, an ensemble of Convolutional Neural Networks with Distant Supervision. 
-![alt text](SemEval-2017-Task4-en/figure/display.png)
-
 # Get started
 
 ## Requirements
@@ -91,3 +77,17 @@ $ python sem4-main.py
 
 The doc is the same as for SemEval Task 1.
 ```
+
+# Results
+* We show in Task 2 that retrofitting does improve word embedding. Indeed, the model [ConceptNet NumberBatch](https://github.com/commonsense/conceptnet-numberbatch), which uses retrofitting to "inject" ConceptNet "knowledge" in pre-trained embedding vectors, has the highest score among all the models we have tested. 
+
+The best Pearson score (0.80) was obtained by Luminoso_run2 using ConceptNet NumberBatch.
+![alt text](SemEval-2017-Task2-en/Figures/evaluation_comparison.png)
+
+* We show in Task 1 and Task 4 that a sentence representation is more accurate than an average of word representations. Indeed, [InferSent](https://github.com/facebookresearch/InferSent) model has obtained higher accuracy than the other word embedding models.
+
+The best Testing Accuracy Score (0.81) was obtained by [Yang et al. 2018](https://arxiv.org/pdf/1804.07754.pdf).
+![alt text](SemEval-2017-Task1-en/Figure/testing.png)
+
+The best F1 score (0.633) for Task 4 was obtained by [SwissCheese](http://www.aclweb.org/anthology/S16-1173) model, an ensemble of Convolutional Neural Networks with Distant Supervision. 
+![alt text](SemEval-2017-Task4-en/figure/display.png)
